@@ -1,18 +1,17 @@
 
-
-#include "CoreMinimal.h"
-#include "GameCore/MeshGenBase/customMeshActorBase.h"
-#include "GameCore/MeshGenBase/ELod.h"
 #include "LodCheckContainer.h"
 
-LodCheckContainer::LodCheckContainer(){
-    int metersLodNearUntil = 200;
-    int metersLodMiddleUntil = 400;
-    int metersLodFarUntil = 600;
+#include "GameCore/MeshGenBase/customMeshActorBase.h"
+#include "GameCore/MeshGenBase/ELod.h"
+#include "GameCore/MeshGenBase/lodHelper/LodConstants.h"
 
-    modifyUpperDistanceLimitFor(ELod::lodNear, metersLodNearUntil * 100);
-    modifyUpperDistanceLimitFor(ELod::lodMiddle, metersLodMiddleUntil * 100);
-    modifyUpperDistanceLimitFor(ELod::lodFar, metersLodFarUntil * 100);
+
+LodCheckContainer::LodCheckContainer(){
+    
+    int factor = 100; //100
+    modifyUpperDistanceLimitFor(ELod::lodNear, LodConstants::metersLodNearUntil * factor);
+    modifyUpperDistanceLimitFor(ELod::lodMiddle, LodConstants::metersLodMiddleUntil * factor);
+    modifyUpperDistanceLimitFor(ELod::lodFar, LodConstants::metersLodFarUntil * factor);
 }
 
 LodCheckContainer::LodCheckContainer(FVector &a, FVector &b) : LodCheckContainer(){
@@ -68,7 +67,7 @@ void LodCheckContainer::checkLod(){
 
 ELod LodCheckContainer::lodLevelByDistanceTo(bool &isEdgeCase){
     ELod outLod = ELod::lodFar;
-    std::vector<ELod> vec = AcustomMeshActorBase::lodVector();
+    std::vector<ELod> vec = LodConstants::lodVector();
 
     if(vec.size() > 0){
         int smallestEdgeDistance = -1;

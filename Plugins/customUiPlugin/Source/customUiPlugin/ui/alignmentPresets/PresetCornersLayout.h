@@ -4,6 +4,8 @@
 #include "customUiPlugin/ui/Widgets/autoContainer/Vbox.h"
 #include "PresetCornersLayout.generated.h"
 
+class UCanvasScreen;
+
 /**
  * preset corners layout with vertical boxes
  */
@@ -15,7 +17,7 @@ class CUSTOMUIPLUGIN_API UPresetCornersLayout : public UcustomUiComponentBase{
 
 public:
     using UcustomUiComponentBase::init;
-    void init(UCanvasPanel &parentPanelIn);
+    void init(UCanvasScreen *parentPanelIn);
 
     void addChildToTopLeft(UWidget *any);
     void addChildToTopRight(UWidget *any);
@@ -40,13 +42,22 @@ private:
     void addChildTo(UVbox *box, UWidget *any);
     void addChildTo(UVbox *box, UcustomUiComponentBase *any);
 
+    UPROPERTY()
     UVbox *topLeft = nullptr;
+
+    UPROPERTY()
     UVbox *topRight = nullptr;
+
+    UPROPERTY()
     UVbox *bottomLeft = nullptr;
+
+    UPROPERTY()
     UVbox *bottomRight = nullptr;
     
+    UPROPERTY()
     UVbox *topCenter = nullptr;
 
+    UPROPERTY()
     UCanvasPanel *parentPanel = nullptr;
 
     void addToParentPanelAndInit(UcustomUiComponentBase *item, FVector2D anchor, FVector2D alignment);

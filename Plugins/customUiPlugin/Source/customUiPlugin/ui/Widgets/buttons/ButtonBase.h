@@ -27,6 +27,7 @@ class CUSTOMUIPLUGIN_API UButtonBase : public UcustomUiComponentBase
     GENERATED_BODY()
 
 public:
+    //call after construct!
     virtual void init() override;
 
     virtual UWidget *baseLayoutPointer() override{
@@ -48,11 +49,14 @@ public:
 
 protected:
 
+    UPROPERTY()
     UButton *button = nullptr;
-    UScaleBox *scalebox = nullptr; //inside button. Use to add your childs
 
     UPROPERTY()
-    UCallback *callbackPointer = nullptr;
+    UScaleBox *scalebox = nullptr; //inside button. Use to add your childs, macht button sichtbar
+
+    UPROPERTY()
+    UCallback *callbackPointer = nullptr; //callback on click
 
     UPROPERTY()
     UCallback *callbackPointerOnHovered = nullptr;
@@ -64,5 +68,8 @@ protected:
     void createPressedCallbackIfNeeded();
     void createHoveredAndUnHoveredCallbackIfNeeded();
 
-    void disableUMGClicks();
+
+
+private:
+    void SetupButtonStyle();
 };

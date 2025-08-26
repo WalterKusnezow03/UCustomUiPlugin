@@ -6,14 +6,20 @@
 #include "GameFramework/Actor.h"
 #include "ProceduralMeshComponent.h"
 #include <map>
-#include "MeshDataLod.h"
+
 #include "ELod.h"
 #include "GameCore/util/FVectorTouple.h"
 #include "GameCore/MeshGenBase/foliage/ETerrainType.h"
+
+#include "GameCore/MeshGenBase/lodHelper/ProceduralMeshComponentPair.h"
+
+#include "GameCore/interfaces/Damageinterface.h"
+#include "GameCore/team/teamEnum.h"
+
 #include "customMeshActorBase.generated.h"
 
 UCLASS()
-class GAMECORE_API AcustomMeshActorBase : public AActor
+class GAMECORE_API AcustomMeshActorBase : public AActor, public IDamageinterface
 {
 	GENERATED_BODY()
 	
@@ -25,10 +31,48 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// switches the lod on begin play to near to propagate lod
+	// to mesh component pairs
+	void switchToLodOnBeginPlayOrUpdateMesh();
+
+	//default Lod listening is set to false!
 	bool LISTEN_FOR_LOD_PLAYER = false;
 
+	USceneComponent *rootScene = nullptr;
+
 public:
+	//derived methods IDamageinterface
+	//methods
+	virtual void takedamage(int d) override;
+	virtual void takedamage(int d, FVector &from) override;
+	virtual void takedamage(int d, bool surpressed) override;
+	virtual void takedamage(int d, FVector &hitpoint, bool surpressed) override;
+
+	virtual void setTeam(teamEnum t) override;
+	virtual teamEnum getTeam() override;
+
+
+	void setDamagedOwner(IDamageinterface *damagedOwnerIn);
+
+
+protected:
+	int health = 100;
+	teamEnum team;
+	class IDamageinterface *damagedOwner = nullptr;
+
+	// --- damaga api end ---
+public:
+
+
+
+	/// @brief default LOD listening is set to FALSE!
 	void enableLodListening();
+	void disableLodListening();
+
+	/// is dynamic if lod listening is enabled
+	ELod GetCurrentLodLevel();
+
+
 	void disableDistanceListening();
 
 	void disablePhysicscollision();
@@ -137,12 +181,20 @@ protected:
 	class UProceduralMeshComponent *MeshNoRaycast;
 
 	/// @brief saves mesh data per lod level per material int
-	std::map<int, MeshDataLod> meshLayersLodMap;
+	/*std::map<int, MeshDataLod> meshLayersLodMap;
 	std::map<int, MeshDataLod> meshLayersLodMapNoRaycast;
 
 	std::map<ELod, UProceduralMeshComponent *> meshComponentLodMap;
-	std::map<ELod, UProceduralMeshComponent *> meshComponentLodMapNoRaycast;
-	
+	std::map<ELod, UProceduralMeshComponent *> meshComponentLodMapNoRaycast;*/
+
+
+	//NEW
+	std::map<ELod, ProceduralMeshComponentPair> meshLodContainers;
+
+
+
+
+
 	UProceduralMeshComponent *MeshForLod(ELod lod);
 	UProceduralMeshComponent *MeshNoRaycastForLod(ELod lod);
 	void switchToLod(ELod lod);
@@ -197,8 +249,8 @@ protected:
 
 public:
 	static int layerByMaterialEnum(materialEnum type);
-	static std::vector<materialEnum> materialVector();
-	static std::vector<ELod> lodVector();
+	
+	
 	static std::vector<ETerrainType> terrainVector();
 
 	static materialEnum groundMaterialFor(ETerrainType terraintype);

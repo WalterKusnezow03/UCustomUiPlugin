@@ -12,9 +12,9 @@
 
 ///@brief sets up the canvas, the player ui parent is 
 void UCanvasScreen::init(UPlayerUiBase &refin){
-    playerUiParent = &refin;
+    //playerUiParent = &refin;
+    saveParent(refin);
     createBaseCanvas();
-
 }
 
 /// ---- Adding items ----
@@ -24,7 +24,7 @@ void UCanvasScreen::AddChild(UcustomUiComponentBase *item){
     AddChild(item, FVector2D(0, 0));
 }
 
-/// @brief adds a child to the UCanvasPanel with a offset
+/// @brief adds a child to the UCanvasPanel with a offset, listens for click automatically!
 /// @param item 
 /// @param offset 
 void UCanvasScreen::AddChild(UcustomUiComponentBase *item, FVector2D offset){
@@ -48,6 +48,33 @@ void UCanvasScreen::AddChild(UcustomUiComponentBase *item, FVector2D offset){
         
     }
 }
+
+void UCanvasScreen::AddChild(
+    UcustomUiComponentBase *item,
+    FVector2D screenAnchor, //corner top left (0,0), bottom right (1,1)
+    FVector2D alignment //gravity / pivot of item (0,0.5), make centered on y
+){
+    if(item && baseCanvas){
+        UWidget *basePointer = item->baseLayoutPointer();
+        if(basePointer){
+            AddClickListenedItem(item);
+
+            UCanvasPanelSlot *CanvasSlot = Cast<UCanvasPanelSlot>(baseCanvas->AddChild(basePointer));
+            if(CanvasSlot != nullptr){
+                CanvasSlot->SetAnchors(FAnchors(screenAnchor.X, screenAnchor.Y));  //anchror from 2d(0,1) range
+                CanvasSlot->SetAlignment(alignment); //content alignment / pivot from 2d(0,1) range
+                CanvasSlot->SetAutoSize(true); //idk tbh
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
 
 
 // --- CLICK AND VISIBILITY DISPATCH ----
