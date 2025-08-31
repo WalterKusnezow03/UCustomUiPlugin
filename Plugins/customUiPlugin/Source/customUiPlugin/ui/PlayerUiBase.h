@@ -54,7 +54,9 @@ class CUSTOMUIPLUGIN_API UPlayerUiBase : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	
+
+	/// @brief must be overriden but called Super, to add anything to the viewport!
+	/// @param world 
 	virtual void init(UWorld *world);
 
 	UFUNCTION()
@@ -86,4 +88,7 @@ protected:
 	ScreenOpenStack openedScreenStack;
 
     void createTickActor(UWorld *world);
+
+private:
+	bool bMouseLeftIsPressed = false;
 };

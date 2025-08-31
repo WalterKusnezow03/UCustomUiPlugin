@@ -33,7 +33,7 @@ public:
         return false;
     }
 
-    /// @brief marks button as invisible: may be needed to not dispatch a click, base layout pointer is 
+    /// @brief marks self as invisible: may be needed to not dispatch a click, base layout pointer is 
     /// invisible too! - OVERRIDE THIS METHOD!
     /// @param visible 
     virtual void setVisible(bool visible) {
@@ -83,6 +83,9 @@ protected:
 
     bool WAS_INIT_FLAG = false;
 
+    /// @brief hides a widget, if not visible, COLLAPSED
+    /// @param any 
+    /// @param visible 
     void setVisible(UWidget *any, bool visible){
         if(any != nullptr){
             //ESlateVisibility newStatus = visible ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
