@@ -7,25 +7,17 @@ void UGridBox::init(){
         return;
     }
     init(2, 5); //some number as example
-    Super::init();
 }
 
 void UGridBox::init(int i, int j){
     if(WAS_INIT_FLAG){
         return;
     }
+    Super::init();
     SetupGrid();
     FillArrayIncluding(i - 1, j - 1); //one less because otherwise constructor is unexpected
 }
 
-void UGridBox::init(UPlayerUiBase &refin){
-    if(WAS_INIT_FLAG){
-        return;
-    }
-    SetupGrid();
-    init(2, 5); //some number as example
-    Super::init(refin);
-}
 
 void UGridBox::SetupGrid(){
     gridBoxLayout = NewObject<UGridPanel>(this);
@@ -127,6 +119,7 @@ void UGridBox::AddChild(UWidget *item, int i, int j){
                 Slot->SetRow(i);
                 Slot->SetColumn(j);
             }
+            UpdatePadding(item);
         }
     }
 }
@@ -347,6 +340,22 @@ void UGridBox::SetRowVisible(int i, bool show){
             if(itemCurrent){
                 itemCurrent->setVisible(show);
             }
+        }
+    }
+}
+
+void UGridBox::SetAllRowsVisible(bool show){
+    for (int i = 0; i < NumRows(); i++){
+        SetRowVisible(i, show);
+    }
+}
+
+
+// -- padding updates --
+void UGridBox::UpdatePadding(UWidget *widget){
+    if(widget){
+        if(UGridSlot* Slot = Cast<UGridSlot>(widget->Slot)){
+            Slot->SetPadding(makePadding());
         }
     }
 }

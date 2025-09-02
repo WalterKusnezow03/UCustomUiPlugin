@@ -21,11 +21,15 @@ public:
     virtual void init(){
         WAS_INIT_FLAG = true;
     }
+
+    //does not need to be public by default, made public if needed
+protected:    
     virtual void init(UPlayerUiBase &refin){
         saveParent(refin);
         WAS_INIT_FLAG = true;
     }
 
+public:
 
     // --- manual click dispatch, must be overriden if has childs!---
     //OVERRIDE THIS METHOD!
@@ -45,7 +49,7 @@ public:
     virtual void BeginDestroy() override
     {
         //remove tick from tick handler
-        disableTick();
+        TICK_ENABLED = false;
 
         Super::BeginDestroy();
     }
@@ -57,15 +61,6 @@ public:
         }
     }
 
-    //deprecated flag.
-    void enableTick(){
-        TICK_ENABLED = true;
-    }
-
-    void disableTick(){
-        TICK_ENABLED = false;
-    }
-
     //--- Ticker section end ---
 
 
@@ -73,10 +68,11 @@ public:
         playerUiParent = &ref;
     }
 
-    //MUST BE OVERRIDEN!
+    //MUST BE OVERRIDEN!!!
     virtual UWidget *baseLayoutPointer(){
         return nullptr;
     }
+
 
 protected:
     UPlayerUiBase *playerUiParent = nullptr;
@@ -115,7 +111,8 @@ protected:
         return VISIBLE_FLAG;
     }
 
+protected:
+    bool TICK_ENABLED = true; //true by default!
 private:
-    bool TICK_ENABLED = false;
     bool VISIBLE_FLAG = true;
 };
