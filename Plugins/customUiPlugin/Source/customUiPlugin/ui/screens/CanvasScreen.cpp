@@ -12,11 +12,14 @@
 
 ///@brief sets up the canvas, the player ui parent is 
 void UCanvasScreen::init(UPlayerUiBase &refin){
+    if(WAS_INIT_FLAG){
+        return;
+    }
     //playerUiParent = &refin;
     saveParent(refin);
     createBaseCanvas();
+    CreateLayoutOnInit(); //empty on purpose
 }
-
 
 /// ---- Moving items ----
 void UCanvasScreen::SetScreenPosition(UWidget *widget, FVector2D &ScreenPosition){
@@ -56,14 +59,6 @@ void UCanvasScreen::AddChild(IBaseUiInterface *item, FVector2D ScreenPosition){
             // baseCanvas->AddChild(basePtr); //Add BEFORE SLOT* request!
             SetScreenPosition(basePtr, ScreenPosition);
         }
-
-        /*
-        if(basePtr){
-            AddClickListenedItem(item); //Add to dispatcher!
-
-            baseCanvas->AddChild(basePtr); //Add BEFORE SLOT* request!
-            SetScreenPosition(basePtr, ScreenPosition);
-        }*/
     }
 }
 
@@ -108,7 +103,7 @@ void UCanvasScreen::AddChild(
 
 void UCanvasScreen::RemoveChild(IBaseUiInterface *item){
     if(item){
-        Super::RemoveChild(item);
+        Super::RemoveChild(item); //remove base interface from dispatch
         if(baseCanvas){
             UWidget *widget = item->baseLayoutPointer();
             if(widget){
@@ -118,6 +113,14 @@ void UCanvasScreen::RemoveChild(IBaseUiInterface *item){
     }
 }
 
+void UCanvasScreen::RemoveChild(UWidget *widget){
+    if(widget){
+        Super::RemoveChild(widget); //finds IBaseUiInterface from parent too and removes it from dispatch!
+        if(baseCanvas){
+            baseCanvas->RemoveChild(widget); // doesnt throw a exception if not contained.
+        }
+    }
+}
 
 
 

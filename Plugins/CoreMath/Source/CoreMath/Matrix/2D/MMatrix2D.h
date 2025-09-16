@@ -13,12 +13,14 @@ public:
 	MMatrix2D();
 	virtual ~MMatrix2D();
 
-	MMatrix2D(FVector2D &other);
+	MMatrix2D(FVector2D other);
 	
 	MMatrix2D(const MMatrix2D &other);
 	MMatrix2D& operator=(const MMatrix2D &other);
 
-	
+	void SetTranslation(FVector2D vec);
+	FVector2D getTranslation() const;
+
 	void operator*=(const MMatrix2D & other);
 	FVector2D operator*(const FVector2D &other) const;
 	FVector2f operator*(const FVector2f &other) const;
@@ -44,6 +46,9 @@ public:
 	FString asString();
 
 	bool IsZeroScaleMatrix() const;
+
+	void SetRotation(const FVector2D &other);
+	void SetRotation(const FVector2D &axis, const FVector2D &other);
 
 private:
 	//16 langes array für die 4x4 matrix

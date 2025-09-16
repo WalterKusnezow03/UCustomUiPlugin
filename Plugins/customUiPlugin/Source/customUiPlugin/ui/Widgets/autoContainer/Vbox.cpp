@@ -58,6 +58,29 @@ void UVbox::RemoveChild(UWidget *any){
 
 
 
+void UVbox::ReplaceChild(int i, IBaseUiInterface *newInterface){
+    IBaseUiInterface *oldInterface = BaseInterfaceAtIndex(i);
+    if(newInterface && oldInterface){
+
+        UWidget *newChild = newInterface->baseLayoutPointer();
+        UWidget *oldChild = oldInterface->baseLayoutPointer();
+        if (baseVBox && newChild && oldChild)
+        {
+            int32 Index = baseVBox->GetChildIndex(oldChild);
+            if (Index != INDEX_NONE)
+            {
+                baseVBox->RemoveChildAt(Index);
+                baseVBox->InsertChildAt(Index, newChild);
+
+                //remove from dispatch and add
+                Super::RemoveChild(oldInterface);
+                Super::AddChild(newInterface);
+            }
+        }
+        
+    }
+}
+
 
 
 
@@ -66,7 +89,10 @@ void UVbox::RemoveChild(UWidget *any){
 void UVbox::UpdatePadding(UWidget *widget){
     if(widget){
         if(UVerticalBoxSlot* Slot = Cast<UVerticalBoxSlot>(widget->Slot)){
-            Slot->SetPadding(makePadding());
+            Slot->SetPadding(
+                //Super::
+                makePadding()
+            );
         }
     }
 }
@@ -108,3 +134,20 @@ void UVbox::UpdateAlignment(UWidget *item){
     }
 }
 
+
+
+#include "customUiPlugin/ui/Widgets/autoContainer/sizing/FixedSizeBox.h"
+void UVbox::CreateSpacer(int height){
+    height = std::max(height, 0);
+
+    UFixedSizeBox *box = NewWidgetInitialized<UFixedSizeBox>(this);
+    box->SetWidth(height);
+    box->SetHeight(height);
+
+    UVerticalBoxSlot *SpacerSlot = baseVBox->AddChildToVerticalBox(box->baseLayoutPointer());
+    if (SpacerSlot)
+    {
+        SpacerSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill)); // füllt restlichen Platz
+    }
+
+}

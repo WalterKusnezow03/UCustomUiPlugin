@@ -2,15 +2,35 @@
 
 #include "CoreMinimal.h"
 #include "customUiPlugin/slate/MeshData2D/Color/PairColorPosition.h"
-#include "customUiPlugin/slate/MeshData2D/bound/FBoundingBox2D.h"
+#include "customUiPlugin/slate/MeshData2D/bound/FSlateBoundingBox2D.h"
 #include "customUiPlugin/slate/MeshData2D/Cache/SlateVertexBufferCache.h"
 #include "CoreMath/Matrix/2D/MMatrix2D.h"
 
+#include "Engine/Texture2D.h"
+#include "Rendering/SlateResourceHandle.h"
+
+//class FResourceHandle;
+//class UTexture2D;
+
 /// @brief class to store 2D Mesh Data for Slate Ui Polygons
 /// Supports FVector2D and FSlateVertex at the same time.
+/// will also hold the texture and provide 
 class CUSTOMUIPLUGIN_API SlateMeshData {
 
     //SlateIndex = uin16, merken
+protected:
+    //drawing brush
+    FSlateBrush textureBrush;
+    FSlateResourceHandle emptyHandle;
+    UTexture2D *texturePtr = nullptr;
+
+public:
+    void SetTexture(UTexture2D *textureIn);
+    void SetTexture(UTexture2D *inTexture, int sizeX, int sizeY);
+
+    ///@brief returns the rsource handle for this object: nesecarry for drawing the texture on the 
+    ///polygon
+    const FSlateResourceHandle &drawingHandle() const;
 
 public:
     bool bLogColor = false;
@@ -61,6 +81,8 @@ public:
     const TArray<FSlateVertex> &GetSlateVertexBuffer(FSlateRenderTransform &RenderTransform) const;
     const TArray<SlateIndex> &TrianglesRefConst() const;
 
+    TArray<FVector2f> VerteciesAs2f() const; //for line draw
+
 
     // --- color dynamic ---
     void UpdateCursorPosition(FVector2D &position, bool bDynamicColoring);
@@ -94,7 +116,7 @@ private:
     SlateVertexBufferCache slateVertexCache;
 
     //bound
-    FBoundingBox2D boundingBox;
+    FSlateBoundingBox2D boundingBox;
 
     // Mesh data
     float epsilon = 1.0f;
@@ -164,7 +186,12 @@ private:
         const FSlateRenderTransform &RenderTransform
     ) const;
 
+    ///generates the UV Coordinate clamped based on bounding box
+    FVector2f MakeUV(const FVector2D &vertex) const;
 
+
+
+    FVector2f ConvertTo2f(const FVector2D &other) const;
 
     // -- triangle detail increase --
 

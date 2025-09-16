@@ -1,4 +1,5 @@
 #include "SlateMeshData.h"
+#include "CoreMath/vector/bound/FBoundingBox2D.h"
 
 SlateMeshData::SlateMeshData(){
     bCursorColorEnabled = false;
@@ -53,6 +54,22 @@ const TArray<SlateIndex> &SlateMeshData::TrianglesRefConst()const{
     return Triangles;
 }
 
+TArray<FVector2f> SlateMeshData::VerteciesAs2f() const{//for line draw
+    TArray<FVector2f> outBuffer;
+    outBuffer.SetNumUninitialized(Triangles.Num());
+    for (int t = 2; t < Triangles.Num(); t++)
+    {
+        const FVector2D &v0 = Vertecies[Triangles[t - 2]];
+        const FVector2D &v1 = Vertecies[Triangles[t - 1]];
+        const FVector2D &v2 = Vertecies[Triangles[t]];
+
+        outBuffer[t - 2] = ConvertTo2f(v0);
+        outBuffer[t - 1] = ConvertTo2f(v1);
+        outBuffer[t] = ConvertTo2f(v2);
+    }
+
+    return outBuffer;
+}
 
 void SlateMeshData::Clear(){
     boundingBox.Reset();
@@ -448,7 +465,7 @@ FSlateVertex SlateMeshData::makeSlateVertex(
     FColor Color = InterpolatedColorFor(Position).ToFColor(true); //true gamma korrektur.(?)
 
     //UV - ignored
-    FVector2f UV(0,0); // wenn keine Textur, 0,0 ok
+    FVector2f UV = MakeUV(Position);
 
     //apply runtime transform
     FVector2f PosAs2F(Position.X, Position.Y);
@@ -559,8 +576,22 @@ FVector2D SlateMeshData::convertUVInvertedToVertexBufferSpace(const FVector2D &u
     return gx;
 }
 
+FVector2f SlateMeshData::MakeUV(const FVector2D &vertex) const {
+    FVector2f outUv;
 
+    FVector2D relative = vertex - boundingBox.min(); // AB = B - A, from min coordinate
 
+    //scalar = distTarget / distAll
+    int sizeX = boundingBox.sizeX();
+    int sizeY = boundingBox.sizeY();
+
+    outUv.X = relative.X / sizeX;
+    outUv.Y = relative.Y / sizeY;
+
+    outUv.X = FMath::Clamp(outUv.X, 0.0f, 1.0f);
+    outUv.Y = FMath::Clamp(outUv.Y, 0.0f, 1.0f);
+    return outUv;
+}
 
 // ----- Color interpolation ------
 
@@ -659,7 +690,7 @@ FLinearColor SlateMeshData::InterpolatedColorFor(
     }
 
 
-    // Clamp nur am Ende
+    //clamp color very important
     accumulatedColor = accumulatedColor.GetClamped();
     accumulatedColor.A = 1.0f;
     // FMath::Clamp(accumulatedColor.A, 0.0f, 1.0f);
@@ -780,4 +811,55 @@ void SlateMeshData::ApplyTransformationConst(
     
 
 
+}
+
+
+
+FVector2f SlateMeshData::ConvertTo2f(const FVector2D &other) const {
+    FVector2f result(
+        other.X,
+        other.Y
+    );
+    return result;
+}
+
+
+
+
+
+
+/// ------------- drawing texture -------------
+
+void SlateMeshData::SetTexture(UTexture2D *inTexture){
+    if(inTexture){
+
+        int sizeX = boundingBox.sizeX();
+        int sizeY = boundingBox.sizeY();
+
+        int sizeXValid = sizeX > 0 ? sizeX : inTexture->GetSizeX();
+        int sizeYValid = sizeY > 0 ? sizeY : inTexture->GetSizeY();
+
+        SetTexture(inTexture, sizeXValid, sizeYValid);
+    }
+}
+
+void SlateMeshData::SetTexture(UTexture2D *inTexture, int sizeX, int sizeY){
+    if(inTexture){
+        sizeX = std::max(std::abs(sizeX), 1);
+        sizeY = std::max(std::abs(sizeY), 1);
+        texturePtr = inTexture;
+
+        textureBrush.SetResourceObject(inTexture);
+        textureBrush.ImageSize = FVector2D(sizeX, sizeY);
+    }
+}
+
+const FSlateResourceHandle &SlateMeshData::drawingHandle() const {
+    if(texturePtr != nullptr){
+        //FSlateBrush
+        //const FSlateResourceHandle &	
+        //GetRenderingResource ()
+        return textureBrush.GetRenderingResource();
+    }
+    return emptyHandle;
 }

@@ -19,6 +19,25 @@ public:
     virtual void Tick(float deltatime) override;
 
 
+
+    ///@brief dispatches a click and returns the index in IBaseUiInterface Array
+    virtual bool dispatchClick(int &outIndexFirst);
+
+    ///@brief item at index or nullptr if invalid
+    IBaseUiInterface *BaseInterfaceAtIndex(int i);
+
+    ///@brief item at index or nullptr if invalid
+    UWidget *UWidgetAtIndex(int i);
+
+
+    /// @brief use only for very special cases where this data is needed!
+    const TArray<IBaseUiInterface *> &AccessInternalItemsTmp() const;
+
+protected:
+   
+
+    
+
     /// @brief adds child tracked to Click, Tick and Visibilty Dispatch
     virtual void AddChild(IBaseUiInterface *item);
 
@@ -30,7 +49,7 @@ public:
     /// the widget ptr to the base interface widget ptrs.
     virtual void RemoveChild(UWidget *item);
 
-protected:
+
     bool CanAddChild(IBaseUiInterface *item);
 
     

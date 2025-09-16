@@ -72,7 +72,8 @@ protected:
     void DrawAllPolygons(
         FSlateWindowElementList &OutDrawElements,
         int32 LayerId, //pass from OnPaint, dont change, polygons drawn later will overlap previous ones by default.
-        FSlateRenderTransform &RenderTransform
+        FSlateRenderTransform &RenderTransform,
+        const FGeometry& AllottedGeometry
     ) const;
 
 private:
@@ -80,20 +81,19 @@ private:
         int layerInternal,
         FSlateWindowElementList &OutDrawElements,
         int32 LayerId, // pass from OnPaint
-        FSlateRenderTransform &RenderTransform
+        FSlateRenderTransform &RenderTransform,
+        const FGeometry& AllottedGeometry
     ) const;
 
     void DrawPolygon(
         const SlateMeshDataPolygon &polygon,
         FSlateWindowElementList &OutDrawElements,
         int32 LayerId, // pass from OnPaint
-        FSlateRenderTransform &RenderTransform
+        FSlateRenderTransform &RenderTransform,
+        const FGeometry& AllottedGeometry
     ) const;
     //draw polygons end
 
-
-
-    
 
 
     FVector2D CursorPositionScreenSpace();

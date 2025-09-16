@@ -24,14 +24,16 @@ public:
     //must be called from derived class!
     virtual void init(UPlayerUiBase &refin);
 
+    virtual void CreateLayoutOnInit() {}; //called on init
 
     virtual UWidget *baseLayoutPointer() override;
     
     void setBackgroundColor(FLinearColor color);
     void setDefaultBackgroundColor();
 
-    
-
+    /// @brief called from screen stack if a newer screen is closed and this
+    /// one is reopended (refresh ui if needed!)
+    virtual void OnReOpenScreen() {};
 
     /// @brief added child AUTOMATICALLY added to click and visibilty and Tick DISPATCH!
     /// @param item 
@@ -55,6 +57,9 @@ public:
 
     ///@brief removed from click dispatch and from canvas if stored
     virtual void RemoveChild(IBaseUiInterface *item) override;
+
+    ///@brief removed from canvas AND any IBaseUiInterface having the same widget as ptr.
+    virtual void RemoveChild(UWidget *item) override;
 
     // --- to be REMOVED ---
     //raw adding.
