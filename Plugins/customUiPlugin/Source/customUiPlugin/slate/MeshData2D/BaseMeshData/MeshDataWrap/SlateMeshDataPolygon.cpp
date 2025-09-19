@@ -83,6 +83,22 @@ const SlateTextBase &SlateMeshDataPolygon::GetSlateTextConst() const{
     return internalText;
 }
 
+
+FVector2f SlateMeshDataPolygon::SlateTextPivot2f() const {
+    FVector2D as2D = SlateTextPivot();
+    return FVector2f(as2D.X, as2D.Y);
+}
+
+FVector2D SlateMeshDataPolygon::SlateTextPivot() const {
+    FVector2D pivot(0, 0);
+    if(internalText.bShouldCenteredInWidget()){
+        FVector2D textBounds = internalText.Bounds();
+        FVector2D center = meshData.CenterOfMesh();
+        pivot = center - textBounds * 0.5f;
+    }
+    return pivot;
+}
+
 SlateTextBase &SlateMeshDataPolygon::GetSlateText(){
     return internalText;
 }
@@ -93,4 +109,31 @@ bool SlateMeshDataPolygon::bHasText()const{
 
 void SlateMeshDataPolygon::SetText(FString textIn){
     internalText.SetText(textIn);
+}
+
+void SlateMeshDataPolygon::AppendChar(TCHAR &character){
+    internalText.AppendChar(character);
+}
+
+void SlateMeshDataPolygon::RemoveChar(){
+    internalText.RemoveChar();
+}
+
+void SlateMeshDataPolygon::CopyTextData(SlateMeshDataPolygon &other){
+    internalText = other.internalText;
+}
+
+void SlateMeshDataPolygon::ClearText(){
+    internalText.SetText("");
+}
+
+
+
+//rendering
+void SlateMeshDataPolygon::EnableRender(bool bFlag){
+    rendered = bFlag;
+}
+
+bool SlateMeshDataPolygon::bIsEnabled() const{
+    return rendered;
 }

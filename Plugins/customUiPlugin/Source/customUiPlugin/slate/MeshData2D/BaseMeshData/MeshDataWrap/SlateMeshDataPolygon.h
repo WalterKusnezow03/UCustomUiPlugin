@@ -56,7 +56,20 @@ public:
     const SlateTextBase &GetSlateTextConst() const;
     SlateTextBase &GetSlateText();
 
+    FVector2f SlateTextPivot2f() const;
+    FVector2D SlateTextPivot() const;
+
     void SetText(FString textIn);
+    void ClearText();
+    void AppendChar(TCHAR &character);
+    void RemoveChar();
+
+    void CopyTextData(SlateMeshDataPolygon &oldPolygon);
+
+
+    //rendering
+    void EnableRender(bool bFlag);
+    bool bIsEnabled() const;
 
 protected:
     /// @brief owned mesh data 
@@ -71,7 +84,6 @@ protected:
 
     //animation
 
-
-
-
+    //render block
+    bool rendered = true;
 };
