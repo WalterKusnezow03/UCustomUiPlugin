@@ -23,41 +23,64 @@ void UTextAndImageBase::init(){
     if(WAS_INIT_FLAG){
         return;
     }
+    Super::init();
     baseHorizontalBox = nullptr;
     TextBlock = nullptr;
     Image = nullptr;
-   
 
-    baseHorizontalBox = NewObject<UHbox>(this);
-    baseHorizontalBox->init();
+    baseHorizontalBox = NewWidgetInitialized<UHbox>(this);
 
     createText();
-    SetText("new text box image");
     createImage();
+    SetText("new text box image");
+    uniformScalingSetup = false;
+}
 
+bool UTextAndImageBase::dispatchClick(){
+    if(!markedVisible()){
+        return false;
+    }
+    return baseHorizontalBox != nullptr && baseHorizontalBox->dispatchClick();
+}
+
+void UTextAndImageBase::Tick(float deltatime){
+    Super::Tick(deltatime);
+    if (baseHorizontalBox)
+    {
+        //UiDebugHelper::logMessage("UTextAndImageBase tick"); is ticked.
+        baseHorizontalBox->Tick(deltatime);
+    }
+
+    //set text and image same height, can only happen in tick
+    //because slate widget building is not game thread :)
+    if(TextBlock && Image){
+        if(!uniformScalingSetup){
+            //set image height same to text block
+            FVector2D resText = TextBlock->GetResolution();
+            if(resText.Y > 0.0f){
+                Image->SetResolutionYUniform(resText.Y);
+                uniformScalingSetup = true;
+            }
+        }
+    }
 
 
 }
 
-bool UTextAndImageBase::correctInitialized(){
-    return baseHorizontalBox != nullptr;
-}
+
 
 void UTextAndImageBase::createText(){
-    if(TextBlock == nullptr && correctInitialized()){
-        TextBlock = NewObject<UTextBlock>(this);
-        if (TextBlock){
-            baseHorizontalBox->AddChild(TextBlock);
-        }
+    if(TextBlock == nullptr && baseHorizontalBox){
+        TextBlock = NewObject<UWidgetSlateText>(this);
+        baseHorizontalBox->AddChild((IBaseUiInterface*)TextBlock);
     }
 }
 
 void UTextAndImageBase::createImage(){
-    if(Image == nullptr && correctInitialized()){
-        Image = NewObject<UImage>(this);
-        if (Image){
-            baseHorizontalBox->AddChild(Image);
-        }
+    if(Image == nullptr && baseHorizontalBox){
+        Image = NewObject<UWidgetImage>(this);
+        Image->SetResolution(FVector2D(50, 50));//debug, doesnt work
+        baseHorizontalBox->AddChild((IBaseUiInterface*)Image);
     }
 }
 
@@ -65,7 +88,7 @@ void UTextAndImageBase::createImage(){
 
 void UTextAndImageBase::SetText(FString textIn){
     if(TextBlock != nullptr){
-        TextBlock->SetText(FText::FromString(textIn));
+        TextBlock->SetText(textIn);
     }
 }
 
@@ -73,14 +96,12 @@ void UTextAndImageBase::SetText(FString textIn){
 /// @brief sets the image texture from utexture2D* if not nullptr!
 /// @param loadedTexture 
 void UTextAndImageBase::setImage(UTexture2D *loadedTexture){
-
-    setImage(loadedTexture, FVector2D(0.5f, 0.5f));
+    setImage(loadedTexture, FVector2D(50,50));
 }
 
 void UTextAndImageBase::setImage(UTexture2D *loadedTexture, FVector2D scale){
     if (loadedTexture != nullptr && Image)
     {
-        Image->SetBrushFromTexture(loadedTexture);
-        Image->SetRenderScale(scale);
+        Image->SetImage(loadedTexture, scale);
     }
 }

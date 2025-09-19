@@ -28,8 +28,15 @@ void UImageOverlayedButtonBase::Tick(float deltatime){
     }
 }
 bool UImageOverlayedButtonBase::dispatchClick(){
+    if(!markedVisible()){
+        return false;
+    }
+    
     if(background){
-        return background->dispatchClick();
+        if(background->dispatchClick()){
+            TriggerCallback();
+            return true;
+        }
     }
     return false;
 }
